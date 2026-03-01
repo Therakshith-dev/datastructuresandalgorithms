@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS Trees — Ordered Data Structures vs HashMaps</title>
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #111111;
+            --card: #f5f5f5;
+            --accent: #2563eb;
+            --danger-bg: #2b2b2b;
+            --danger-text: #ff4d4d;
+            --insight-bg: #f0f9ff;
+            --insight-border: #2563eb;
+        }
+
+        body.dark {
+            --bg: #0a0a0a;
+            --text: #e5e5e5;
+            --card: #151515;
+            --accent: #60a5fa;
+            --danger-bg: #1a1a1a;
+            --danger-text: #ff6b6b;
+            --insight-bg: #121212;
+            --insight-border: #60a5fa;
+        }
+
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: 0.2s ease;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background: var(--card);
+            border: 1px solid var(--accent);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin: 2rem 0 1rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem;
+            color: var(--accent);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        pre {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--accent);
+            font-family: 'SF Mono', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .important-line {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            font-family: 'SF Mono', monospace;
+            padding: 16px 20px;
+            border-left: 5px solid var(--danger-text);
+            border-radius: 6px;
+            margin: 25px 0;
+            font-weight: 500;
+        }
+
+        .insight-block {
+            background: var(--insight-bg);
+            border-left: 4px solid var(--insight-border);
+            padding: 18px 22px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+        }
+
+        .comparison-table th {
+            background: var(--accent);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--card);
+        }
+
+        .comparison-table tr:hover {
+            background: var(--insight-bg);
+        }
+
+        .winner-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .tree-viz {
+            font-family: 'SF Mono', monospace;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 16px;
+            line-height: 2;
+        }
+
+        .hash-viz {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .hash-bucket {
+            background: var(--bg);
+            border: 1px solid var(--accent);
+            padding: 10px;
+            border-radius: 6px;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: 100px;
+            text-align: center;
+            opacity: 0.6;
+            font-size: 14px;
+            padding: 20px;
+            border-top: 1px solid var(--card);
+        }
+
+        ul, ol {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="topbar">
+        <a href="#">← Back to Index</a>
+        <button onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+
+    <h1>Tree Data Structures</h1>
+    <div class="subtitle">Ordered Abstract Data Types vs. Hash-Based Associative Containers</div>
+
+    <!-- SECTION 1: FUNDAMENTAL DEFINITIONS -->
+    <div class="section card">
+        <h2>1. Formal Definitions</h2>
+        
+        <h3>Binary Search Tree (BST)</h3>
+        <p>A hierarchical data structure where each node contains a key (and associated value) and satisfies the <strong>binary search property</strong>: for any node, all keys in the left subtree are strictly less than the node's key, and all keys in the right subtree are strictly greater. This property enables logarithmic-time search operations when the tree remains balanced.</p>
+
+        <div class="insight-block">
+            <strong>Invariant:</strong> ∀ node N: left_subtree.keys < N.key < right_subtree.keys
+        </div>
+
+        <h3>AVL Tree</h3>
+        <p>A self-balancing BST where the heights of left and right subtrees differ by at most one (<strong>balance factor</strong> ∈ {-1, 0, 1}). Rotations maintain this invariant after mutations, guaranteeing height ≤ 1.44 log₂(n+2).</p>
+
+        <h3>Red-Black Tree</h3>
+        <p>A self-balancing BST with an additional color attribute per node (red or black) satisfying five invariants, ensuring that the longest path is no more than twice the shortest path. This yields height ≤ 2 log₂(n+1).</p>
+
+        <h3>Hash Map (Hash Table)</h3>
+        <p>An associative container that uses a hash function to map keys to array indices (buckets). Collisions are resolved via chaining or open addressing. Provides amortized O(1) insertion, deletion, and lookup but <strong>does not preserve order</strong>.</p>
+    </div>
+
+    <!-- SECTION 2: CRITICAL DIFFERENCE -->
+    <div class="section">
+        <div class="important-line">
+            Hash Maps: O(1) access · Unordered · No range queries · No predecessor/successor
+        </div>
+        <div class="important-line" style="border-left-color: var(--accent); color: var(--accent);">
+            Trees: O(log n) access · Fully ordered · Logarithmic range queries · Predecessor/successor in O(log n)
+        </div>
+    </div>
+
+    <!-- SECTION 3: COMPARISON TABLE -->
+    <div class="section card">
+        <h2>2. Asymptotic & Functional Comparison</h2>
+        
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Operation / Property</th>
+                    <th>Hash Map</th>
+                    <th>Balanced Tree (AVL/RB)</th>
+                    <th>Theoretical Advantage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Exact Lookup</td>
+                    <td>O(1) average<br>O(n) worst-case</td>
+                    <td>O(log n)</td>
+                    <td>HashMap <span class="winner-badge">Winner</span></td>
+                </tr>
+                <tr>
+                    <td>Insert / Delete</td>
+                    <td>O(1) amortized</td>
+                    <td>O(log n)</td>
+                    <td>HashMap</td>
+                </tr>
+                <tr>
+                    <td>Range Query [low, high]</td>
+                    <td>Θ(n) — full scan required</td>
+                    <td>O(log n + k) where k = result size</td>
+                    <td>Tree <span class="winner-badge">Winner</span></td>
+                </tr>
+                <tr>
+                    <td>Sorted Iteration</td>
+                    <td>Θ(n log n) — external sort</td>
+                    <td>O(n) — inorder traversal</td>
+                    <td>Tree</td>
+                </tr>
+                <tr>
+                    <td>Find Minimum / Maximum</td>
+                    <td>Θ(n) — scan all entries</td>
+                    <td>O(log n) — leftmost/rightmost descent</td>
+                    <td>Tree</td>
+                </tr>
+                <tr>
+                    <td>Prefix Search (e.g., "al*")</td>
+                    <td>Not supported</td>
+                    <td>O(log n + k) with trie or tree traversal</td>
+                    <td>Tree</td>
+                </tr>
+                <tr>
+                    <td>Predecessor / Successor</td>
+                    <td>Not supported</td>
+                    <td>O(log n)</td>
+                    <td>Tree</td>
+                </tr>
+                <tr>
+                    <td>Space Overhead</td>
+                    <td>Higher (load factor, collision chains)</td>
+                    <td>Lower (pointers only)</td>
+                    <td>Tree</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SECTION 4: VISUAL REPRESENTATION -->
+    <div class="section card">
+        <h2>3. Structural Visualization</h2>
+        
+        <h3>Balanced Tree Organization</h3>
+        <div class="tree-viz">
+            <pre>
+                        "mike"
+                       /      \
+                  "john"      "sarah"
+                  /    \      /     \
+             "anna"  "lisa" "paul"  "zoe"
+            
+            Keys are totally ordered: anna < john < lisa < mike < paul < sarah < zoe
+            </pre>
+        </div>
+        
+        <div class="insight-block">
+            <strong>Order preservation:</strong> An inorder traversal yields the sequence in sorted order.
+        </div>
+
+        <h3>Hash Map Organization</h3>
+        <div class="hash-viz">
+            <div class="hash-bucket">[0] → "zoe"</div>
+            <div class="hash-bucket">[1] → "mike" → "paul"</div>
+            <div class="hash-bucket">[2] → "anna"</div>
+            <div class="hash-bucket">[3] → "john" → "lisa"</div>
+            <div class="hash-bucket">[4] → "sarah"</div>
+        </div>
+        <p style="text-align: center; margin-top: 10px;">Keys distributed by hash function — no ordering relation preserved.</p>
+        
+        <div class="important-line" style="border-left-color: var(--accent); color: var(--accent);">
+            Hash Maps scatter keys arbitrarily; Trees maintain total order.
+        </div>
+    </div>
+
+    <!-- SECTION 5: COMPOSITE KEYS AND ASSOCIATED DATA -->
+    <div class="section card">
+        <h2>4. Composite Data Storage</h2>
+        
+        <p>Tree nodes store <strong>key-value pairs</strong> where the value may be an arbitrarily complex record:</p>
+
+        <pre>
+type TreeNode struct {
+    Key   string      // Domain for comparisons
+    Value UserRecord  // Associated complex data
+    Left  *TreeNode
+    Right *TreeNode
+}
+
+type UserRecord struct {
+    Username    string
+    Email       string
+    Age         int
+    Posts       []Post        // Slice (array) of posts
+    Friends     []string      // Array of usernames
+    Settings    map[string]bool
+    CreatedAt   time.Time
+}
+        </pre>
+
+        <p>Upon successful search by key, the entire composite value is accessible in O(log n) time, enabling:</p>
+        <ul>
+            <li>Direct field access: <code>user.Email</code>, <code>user.Age</code></li>
+            <li>Aggregate operations: <code>len(user.Posts)</code>, <code>user.Friends</code> iteration</li>
+            <li>Mutations: <code>user.Age++</code>, <code>user.Posts = append(user.Posts, newPost)</code></li>
+        </ul>
+
+        <div class="insight-block">
+            <strong>Key insight:</strong> The tree organizes by key only; the associated value can be any composite type, including arrays, maps, or nested structures — exactly like a hash map's value, but with ordered access.
+        </div>
+    </div>
+
+    <!-- SECTION 6: RANGE QUERIES — THE DEFINING FEATURE -->
+    <div class="section card">
+        <h2>5. Range Queries: The Tree Distinction</h2>
+        
+        <p>Hash maps cannot perform range queries without a full scan. Trees enable logarithmic-time range retrieval:</p>
+
+        <pre>
+func (t *Tree) RangeQuery(low, high string) []Value {
+    result := []Value{}
+    t.rangeQueryRec(t.root, low, high, &result)
+    return result
+}
+
+// Find all users with usernames between "alice" and "bob"
+users := tree.RangeQuery("alice", "bob")
+        </pre>
+
+        <h3>Real-World Applications</h3>
+        <ul>
+            <li><strong>Database indexes:</strong> <code>SELECT * FROM users WHERE age BETWEEN 25 AND 35</code></li>
+            <li><strong>E-commerce:</strong> Products priced between $50 and $100</li>
+            <li><strong>Analytics:</strong> Events timestamped within the last hour</li>
+            <li><strong>Autocomplete:</strong> All dictionary words starting with "app"</li>
+        </ul>
+
+        <div class="important-line">
+            Range queries on ordered trees: O(log n + k) · Hash maps: O(n) full scan
+        </div>
+    </div>
+
+    <!-- SECTION 7: TIME COMPLEXITY PROOFS -->
+    <div class="section card">
+        <h2>6. Mathematical Guarantees</h2>
+        
+        <h3>AVL Tree Height Bound</h3>
+        <p>Let N(h) be the minimum number of nodes in an AVL tree of height h:</p>
+        <pre>N(h) = N(h-1) + N(h-2) + 1, with N(0) = 1, N(1) = 2</pre>
+        <p>This recurrence yields N(h) ≈ φ^(h+2)/√5 - 1, where φ = (1+√5)/2 ≈ 1.618. Solving for h:</p>
+        <pre>h ≤ 1.44 log₂(n+2) - 1.328</pre>
+
+        <h3>Red-Black Tree Height Bound</h3>
+        <p>From the red-black invariants (no two reds adjacent, all paths have equal black height), the longest path ≤ 2 × shortest path, yielding:</p>
+        <pre>h ≤ 2 log₂(n+1)</pre>
+
+        <h3>Hash Map Collision Resolution</h3>
+        <p>With load factor α = n/m, expected chain length = α. Under simple uniform hashing, expected access time = O(1 + α).</p>
+    </div>
+
+    <!-- SECTION 8: WHEN TO USE EACH -->
+    <div class="section card">
+        <h2>7. Selection Criteria</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h3 style="color: var(--danger-text);">Use Hash Map When:</h3>
+                <ul>
+                    <li>Only exact-match lookups required</li>
+                    <li>Order is irrelevant</li>
+                    <li>Maximum throughput for insert/lookup is critical</li>
+                    <li>Keys are uniformly distributed (UUIDs, random IDs)</li>
+                    <li>Working set fits in memory</li>
+                </ul>
+                <p><strong>Examples:</strong> Caches, symbol tables, dictionaries, object pools</p>
+            </div>
+            
+            <div>
+                <h3 style="color: var(--accent);">Use Balanced Tree When:</h3>
+                <ul>
+                    <li>Range queries needed (min/max, intervals)</li>
+                    <li>Sorted iteration required</li>
+                    <li>Prefix or pattern searches</li>
+                    <li>Predecessor/successor queries</li>
+                    <li>Database indexing (B-tree/B+tree variants)</li>
+                </ul>
+                <p><strong>Examples:</strong> Database indexes, filesystems, autocomplete, event logs</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 9: REAL-WORLD SYSTEMS -->
+    <div class="section card">
+        <h2>8. Production Implementations</h2>
+        
+        <h3>Database Systems</h3>
+        <ul>
+            <li><strong>PostgreSQL, MySQL, Oracle:</strong> Use B+ trees for primary indexes</li>
+            <li><strong>MongoDB:</strong> B-tree based indexes (WiredTiger storage engine)</li>
+            <li><strong>SQLite:</strong> B-tree for tables and indexes</li>
+        </ul>
+
+        <h3>Standard Libraries</h3>
+        <ul>
+            <li><strong>Java:</strong> TreeMap (RB tree), HashMap (hash table)</li>
+            <li><strong>C++ STL:</strong> std::map (RB tree), std::unordered_map (hash table)</li>
+            <li><strong>Go:</strong> map (hash table), external packages provide tree implementations</li>
+            <li><strong>Python:</strong> dict (hash table), sortedcontainers (tree-based)</li>
+        </ul>
+
+        <h3>Operating Systems</h3>
+        <ul>
+            <li><strong>Linux kernel:</strong> Red-black trees for virtual memory areas (VMAs), process scheduling</li>
+            <li><strong>Windows NTFS:</strong> B+ trees for directory indexing</li>
+        </ul>
+    </div>
+
+    <!-- SECTION 9: COMPLEXITY SUMMARY CARD -->
+    <div class="section">
+        <div class="insight-block" style="font-size: 1.1rem;">
+            <strong>Fundamental Trade-off:</strong><br>
+            Hash Maps sacrifice order for constant-time operations.<br>
+            Trees preserve order at logarithmic cost, enabling a richer query algebra.
+        </div>
+    </div>
+
+    <!-- SECTION 10: DRAWBACKS AND CONSIDERATIONS -->
+    <div class="section card">
+        <h2>9. Limitations</h2>
+        
+        <h3>Hash Map Drawbacks</h3>
+        <ul>
+            <li>No ordering → cannot answer range queries</li>
+            <li>Poor worst-case performance (hash collisions)</li>
+            <li>Resizing overhead (rehashing)</li>
+            <li>Memory overhead for buckets and collision chains</li>
+        </ul>
+
+        <h3>Tree Drawbacks</h3>
+        <ul>
+            <li>O(log n) vs O(1) for exact lookups</li>
+            <li>Rotation overhead during writes</li>
+            <li>More complex implementation</li>
+            <li>Pointer overhead per node (left/right/parent/color/height)</li>
+        </ul>
+
+        <div class="important-line">
+            In practice, hybrid systems use both: hash maps for cache, trees for indexes.
+        </div>
+    </div>
+
+    <footer>
+        © 2026 · Advanced Data Structures · Trees vs Hash Maps
+    </footer>
+</div>
+
+<script>
+    function toggleTheme() {
+        document.body.classList.toggle("dark");
+        localStorage.setItem("theme",
+            document.body.classList.contains("dark") ? "dark" : "light");
+    }
+
+    if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark");
+    }
+</script>
+
+</body>
+</html>
